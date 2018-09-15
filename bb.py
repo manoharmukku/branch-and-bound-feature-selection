@@ -9,6 +9,9 @@ import sys
 def usage():
     return None
 
+def parse_features(features_string):
+    return list(map(int, features_string.split(', ')))
+
 def main(argv):
     # Get the command line arguments
     try:
@@ -17,12 +20,13 @@ def main(argv):
         usage()
         sys.exit(2)
 
+    features = [1, 2, 3, 4, 5]
     for opt, arg in opts:
         if (opt in ["-h", "--help"]):
             usage()
             sys.exit()
         elif (opt in ["-f", "--features"]):
-            features = arg
+            features = parse_features(arg)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
