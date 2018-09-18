@@ -12,18 +12,21 @@ def criterion_function(features):
     return sum(features)
 
 class tree_node(object):
-    def __init__(self, value, features, preserved_features, level):
+    def __init__(self, value, features, preserved_features, level, index):
         self.branch_value = value
         self.features = features
         self.preserved_features = preserved_features
         self.level = level
+        self.index = index
         self.children = []
         self.J = None
 
 flag = True
+index = -1
 
 def branch_and_bound(root, D, d, J_max):
     global flag
+    global index
 
     # Compute the criterion function
     root.J = criterion_function(root.features)
@@ -49,24 +52,21 @@ def branch_and_bound(root, D, d, J_max):
     branch_feature_values = sorted(random.sample(list(set(root.features)-set(root.preserved_features)), no_of_branches))
 
     # Iterate on the branches, and for each branch call branch_and_bound recursively
-    for index, value in enumerate(branch_feature_values):
-        child = tree_node(value, [n for n in root.features if n != value] , root.preserved_features + branch_feature_values[(index+1):], root.level+1)
-
+    for i, value in enumerate(branch_feature_values):
+        index += 1
+        child = tree_node(value, [n for n in root.features if n != value] , root.preserved_features + branch_feature_values[(i+1):], root.level+1, index)
         root.children.append(child)
 
+    for child in root.children:
         branch_and_bound(child, D, d, J_max)
 
-index = 0
-
-def display_tree(node, dot_object, node_index, parent_index):
-    global index
-
+def display_tree(node, dot_object, parent_index):
     # Create node in dob_object, for this node
-    dot_object.node(str(node_index), "Features = " + str(node.features) + "\nPreserved = " + str(node.preserved_features) + "\nJ = " + str(node.J))
+    dot_object.node(str(node.index), "Features = " + str(node.features) + "\nJ = " + str(node.J) + "\nPreserved = " + str(node.preserved_features))
 
     # If this is not the root node, create an edge to its parent
-    if (node_index != -1):
-        dot_object.edge(str(parent_index), str(node_index), label=str(node.branch_value))
+    if (node.index != -1):
+        dot_object.edge(str(parent_index), str(node.index), label=str(node.branch_value))
 
     # Base case, when the node has no children, return
     if (len(node.children) == 0):
@@ -74,8 +74,7 @@ def display_tree(node, dot_object, node_index, parent_index):
 
     # Recursively call display_tree for all the childern of this node
     for child in reversed(node.children):
-        display_tree(child, dot_object, index, node_index)
-        index += 1
+        display_tree(child, dot_object, node.index)
 
 def usage():
     return
@@ -105,7 +104,7 @@ def main(argv):
             d = int(arg)
 
     # Create the root tree node
-    root = tree_node(-1, features, [], 0)
+    root = tree_node(-1, features, [], 0, -1)
 
     # Call branch and bound on the root node, and construct the tree
     branch_and_bound(root, D, d, -1)
@@ -113,7 +112,7 @@ def main(argv):
     # Display the constructed tree using python graphviz
     dot = Digraph(comment="Branch and Bound Feature selection")
     dot.format = "png"
-    display_tree(root, dot, -1, -1)
+    display_tree(root, dot, -1)
     dot.render("bb_tree", view=True)
 
 if __name__ == "__main__":
