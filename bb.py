@@ -7,26 +7,27 @@ import getopt
 import sys
 import random
 from graphviz import Digraph
+import queue
 
 def criterion_function(features):
     return sum(features)
 
 class tree_node(object):
-    def __init__(self, value, features, preserved_features, level, index):
+    def __init__(self, value, features, preserved_features, level):
         self.branch_value = value
         self.features = features
         self.preserved_features = preserved_features
         self.level = level
-        self.index = index
+        self.index = None
         self.children = []
         self.J = None
 
 flag = True
-index = -1
+#index = -1
 
 def branch_and_bound(root, D, d, J_max):
     global flag
-    global index
+    #global index
 
     # Compute the criterion function
     root.J = criterion_function(root.features)
@@ -53,12 +54,24 @@ def branch_and_bound(root, D, d, J_max):
 
     # Iterate on the branches, and for each branch call branch_and_bound recursively
     for i, value in enumerate(branch_feature_values):
-        index += 1
-        child = tree_node(value, [n for n in root.features if n != value] , root.preserved_features + branch_feature_values[(i+1):], root.level+1, index)
+        #index += 1
+        child = tree_node(value, [n for n in root.features if n != value] , root.preserved_features + branch_feature_values[(i+1):], root.level+1)
         root.children.append(child)
 
-    for child in root.children:
+    #for child in root.children:
         branch_and_bound(child, D, d, J_max)
+
+def give_indexes(root):
+    bfs = queue.Queue(maxsize=40)
+
+    bfs.put(root)
+    index = -1
+    while (bfs.empty() == False):
+        node = bfs.get()
+        node.index = index
+        index += 1
+        for child in node.children:
+            bfs.put(child)
 
 def display_tree(node, dot_object, parent_index):
     # Create node in dob_object, for this node
@@ -104,10 +117,13 @@ def main(argv):
             d = int(arg)
 
     # Create the root tree node
-    root = tree_node(-1, features, [], 0, -1)
+    root = tree_node(-1, features, [], 0)
 
     # Call branch and bound on the root node, and construct the tree
     branch_and_bound(root, D, d, -1)
+
+    # Give indexes for nodes of constructed tree in BFS order
+    give_indexes(root)
 
     # Display the constructed tree using python graphviz
     dot = Digraph(comment="Branch and Bound Feature selection")
