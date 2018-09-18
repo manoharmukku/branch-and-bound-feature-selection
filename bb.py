@@ -23,9 +23,11 @@ class tree_node(object):
         self.J = None
 
 flag = True
+J_max = -1
 
-def branch_and_bound(root, D, d, J_max):
+def branch_and_bound(root, D, d):
     global flag
+    global J_max
 
     # Compute the criterion function
     root.J = criterion_function(root.features)
@@ -39,7 +41,7 @@ def branch_and_bound(root, D, d, J_max):
         if (flag == True):
             J_max = root.J
             flag = False
-        elif (root.J < J_max):
+        elif (root.J > J_max):
             J_max = root.J
 
         return
@@ -57,7 +59,7 @@ def branch_and_bound(root, D, d, J_max):
 
         root.children.append(child)
 
-        branch_and_bound(child, D, d, J_max)
+        branch_and_bound(child, D, d)
 
 def give_indexes(root):
     bfs = queue.Queue(maxsize=40)
@@ -73,8 +75,7 @@ def give_indexes(root):
 
 def display_tree(node, dot_object, parent_index):
     # Create node in dob_object, for this node
-    dot_object.node(str(node.index), "Features = " + str(node.features) + "\nJ (Features) = " + str(node.J) + "\nPreserved = " + str(node.preserved_features) \
-        + "\nLevel = " + str(node.level) + "\nindex = " + str(node.index))
+    dot_object.node(str(node.index), "Features = " + str(node.features) + "\nJ(Features) = " + str(node.J))
 
     # If this is not the root node, create an edge to its parent
     if (node.index != -1):
@@ -125,7 +126,7 @@ def main(argv):
     root = tree_node(-1, features, [], 0)
 
     # Call branch and bound on the root node, and recursively construct the tree
-    branch_and_bound(root, D, d, -1)
+    branch_and_bound(root, D, d)
 
     # Give indexes(numbers) for nodes of constructed tree in BFS order (used for Graphviz)
     give_indexes(root)
