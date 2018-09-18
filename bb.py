@@ -90,11 +90,11 @@ def display_tree(node, dot_object, parent_index):
 
 def usage():
     print ("-----------------------------------------------------------------")
-    print ("Usage: bb.py [-h] -f (feature values) -d (desired features count)")
+    print ("usage: bb.py [-h] -f (feature values) -d (desired features count)")
     print ("-----------------------------------------------------------------")
-    print ("-h or --help -> optional, used to display help")
-    print ("-f or --features= -> required, used to supply feature values, separated by comma without space")
-    print ("-d or --desired= -> required, used to supply the count of the final desired number of features")
+    print ("-h or --help      -> optional, used to display help")
+    print ("-f or --features= -> required, used to supply feature values, separated by comma without space (Ex: -f 1,2,3,4,5)")
+    print ("-d or --desired=  -> required, used to supply the count of the final desired number of features (Ex: -d 2)")
     return
 
 def parse_features(features_string):
