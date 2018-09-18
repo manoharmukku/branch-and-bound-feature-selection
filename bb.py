@@ -23,11 +23,9 @@ class tree_node(object):
         self.J = None
 
 flag = True
-#index = -1
 
 def branch_and_bound(root, D, d, J_max):
     global flag
-    #global index
 
     # Compute the criterion function
     root.J = criterion_function(root.features)
@@ -41,7 +39,7 @@ def branch_and_bound(root, D, d, J_max):
         if (flag == True):
             J_max = root.J
             flag = False
-        elif (root.J > J_max):
+        elif (root.J < J_max):
             J_max = root.J
 
         return
@@ -54,11 +52,9 @@ def branch_and_bound(root, D, d, J_max):
 
     # Iterate on the branches, and for each branch call branch_and_bound recursively
     for i, value in enumerate(branch_feature_values):
-        #index += 1
         child = tree_node(value, [n for n in root.features if n != value] , root.preserved_features + branch_feature_values[(i+1):], root.level+1)
         root.children.append(child)
 
-    #for child in root.children:
         branch_and_bound(child, D, d, J_max)
 
 def give_indexes(root):
@@ -93,12 +89,12 @@ def usage():
     return
 
 def parse_features(features_string):
-    return list(map(int, features_string.split(', ')))
+    return sorted([int(str) for str in features_string.split(',')])
 
 def main(argv):
     # Get the command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hf:d", ["help", "features=", "desired"])
+        opts, args = getopt.getopt(argv, "hf:d:", ["help", "features=", "desired="])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -113,7 +109,7 @@ def main(argv):
         elif (opt in ["-f", "--features"]):
             features = parse_features(arg)
             D = len(features)
-        elif (opt in ["-p", "--desired"]):
+        elif (opt in ["-d", "--desired"]):
             d = int(arg)
 
     # Create the root tree node
