@@ -63,21 +63,29 @@ def parse_features(features_string):
 def main(argv):
     # Get the command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hf:", ["help", "features="])
+        opts, args = getopt.getopt(argv, "hf:p", ["help", "all_features=", "preserve"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
 
     features = [1, 2, 3, 4, 5]
+    D = 5
+    d = 2
     for opt, arg in opts:
         if (opt in ["-h", "--help"]):
             usage()
             sys.exit()
         elif (opt in ["-f", "--features"]):
             features = parse_features(arg)
+            D = len(features)
+        elif (opt in ["-p", "--preserve"]):
+            d = (int)arg
 
     # Create the root tree node
+    root = tree_node(-1, features, [], 0)
 
+    # Call branch and bound on the root node
+    branch_and_bound(root, D, d, -1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
