@@ -44,15 +44,17 @@ def branch_and_bound(root, D, d, J_max):
 
         return
 
-    # Compute the number of branches
+    # Compute the number of branches for this node
     no_of_branches = (d + 1) - len(root.preserved_features)
 
     # Generate the branches
     branch_feature_values = sorted(random.sample(list(set(root.features)-set(root.preserved_features)), no_of_branches))
 
-    # Iterate on the branches, and for each branch call branch_and_bound recursively
-    for i, value in enumerate(branch_feature_values):
-        child = tree_node(value, [n for n in root.features if n != value] , root.preserved_features + branch_feature_values[(i+1):], root.level+1)
+    # Iterate on the branches, and for each branch, call branch_and_bound recursively
+    for i, branch_value in enumerate(branch_feature_values):
+        child = tree_node(branch_value, [value for value in root.features if value != branch_value], \
+            root.preserved_features + branch_feature_values[i+1:], root.level+1)
+
         root.children.append(child)
 
         branch_and_bound(child, D, d, J_max)
@@ -71,7 +73,8 @@ def give_indexes(root):
 
 def display_tree(node, dot_object, parent_index):
     # Create node in dob_object, for this node
-    dot_object.node(str(node.index), "Features = " + str(node.features) + "\nJ = " + str(node.J) + "\nPreserved = " + str(node.preserved_features))
+    dot_object.node(str(node.index), "Features = " + str(node.features) + "\nJ (Features) = " + str(node.J) + "\nPreserved = " + str(node.preserved_features) \
+        + "\nLevel = " + str(node.level) + "\nindex = " + str(node.index))
 
     # If this is not the root node, create an edge to its parent
     if (node.index != -1):
@@ -86,6 +89,12 @@ def display_tree(node, dot_object, parent_index):
         display_tree(child, dot_object, node.index)
 
 def usage():
+    print ("-----------------------------------------------------------------")
+    print ("Usage: bb.py [-h] -f (feature values) -d (desired features count)")
+    print ("-----------------------------------------------------------------")
+    print ("-h or --help -> optional, used to display help")
+    print ("-f or --features= -> required, used to supply feature values, separated by comma without space")
+    print ("-d or --desired= -> required, used to supply the count of the final desired number of features")
     return
 
 def parse_features(features_string):
@@ -115,10 +124,10 @@ def main(argv):
     # Create the root tree node
     root = tree_node(-1, features, [], 0)
 
-    # Call branch and bound on the root node, and construct the tree
+    # Call branch and bound on the root node, and recursively construct the tree
     branch_and_bound(root, D, d, -1)
 
-    # Give indexes for nodes of constructed tree in BFS order
+    # Give indexes(numbers) for nodes of constructed tree in BFS order (used for Graphviz)
     give_indexes(root)
 
     # Display the constructed tree using python graphviz
