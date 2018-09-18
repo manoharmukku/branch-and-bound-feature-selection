@@ -6,6 +6,7 @@
 import getopt
 import sys
 import random
+from graphviz import Digraph
 
 def criterion_function(features):
     return sum(features)
@@ -22,12 +23,14 @@ class tree_node(object):
 flag = True
 
 def branch_and_bound(root, D, d, J_max):
+    global flag
+
     # Compute the criterion function
     root.J = criterion_function(root.features)
 
     # Stop building children for this node, if J <= J_max
-    if (!flag && root.J <= root.J_max):
-        return None
+    if (flag == False and root.J <= J_max):
+        return
 
     # If this is the leaf node, update J_max and return
     if (root.level == D-d):
@@ -37,7 +40,7 @@ def branch_and_bound(root, D, d, J_max):
         elif (root.J > J_max):
             J_max = root.J
 
-        return None
+        return
 
     # Compute the number of branches
     no_of_branches = (d + 1) - len(root.preserved_features)
@@ -53,9 +56,29 @@ def branch_and_bound(root, D, d, J_max):
 
         branch_and_bound(child, D, d, J_max)
 
+index = 0
+
+def display_tree(node, dot_object, node_index, parent_index):
+    global index
+
+    # Create node in dob_object, for this node
+    dot_object.node(str(node_index), "Features = " + str(node.features) + "\nPreserved = " + str(node.preserved_features) + "\nJ = " + str(node.J))
+
+    # If this is not the root node, create an edge to its parent
+    if (node_index != -1):
+        dot_object.edge(str(parent_index), str(node_index), label=str(node.branch_value))
+
+    # Base case, when the node has no children, return
+    if (len(node.children) == 0):
+        return
+
+    # Recursively call display_tree for all the childern of this node
+    for child in reversed(node.children):
+        display_tree(child, dot_object, index, node_index)
+        index += 1
 
 def usage():
-    return None
+    return
 
 def parse_features(features_string):
     return list(map(int, features_string.split(', ')))
@@ -63,7 +86,7 @@ def parse_features(features_string):
 def main(argv):
     # Get the command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hf:p", ["help", "all_features=", "preserve"])
+        opts, args = getopt.getopt(argv, "hf:d", ["help", "features=", "desired"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -78,14 +101,20 @@ def main(argv):
         elif (opt in ["-f", "--features"]):
             features = parse_features(arg)
             D = len(features)
-        elif (opt in ["-p", "--preserve"]):
-            d = (int)arg
+        elif (opt in ["-p", "--desired"]):
+            d = int(arg)
 
     # Create the root tree node
     root = tree_node(-1, features, [], 0)
 
-    # Call branch and bound on the root node
+    # Call branch and bound on the root node, and construct the tree
     branch_and_bound(root, D, d, -1)
+
+    # Display the constructed tree using python graphviz
+    dot = Digraph(comment="Branch and Bound Feature selection")
+    dot.format = "png"
+    display_tree(root, dot, -1, -1)
+    dot.render("bb_tree", view=True)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
