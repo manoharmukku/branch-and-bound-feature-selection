@@ -1,4 +1,4 @@
-# Implementation of Branch and Bound algorithm for feature selection
+# Branch and Bound algorithm for Feature Selection
 
 ### Usage:
 ```
