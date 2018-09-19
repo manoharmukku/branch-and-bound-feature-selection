@@ -130,7 +130,7 @@ def main(argv):
             sys.exit()
         elif (opt in ["-d", "--defaults"]):
             defaults = True
-            print ("using default values for unspecified arguments")
+            print ("Using default values for unspecified arguments")
         elif (opt in ["-f", "--features"]):
             features = arg
             count += 1
