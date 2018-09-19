@@ -2,12 +2,14 @@
 
 ### Usage:
 ```
-$ python bb.py [-h | --help] -f | --features ... -d | --desired ...
+$ python bb.py [-h | --help] [-d | --defaults] -f | --features ... -d | --desired ...
 ```
+
+* Example usage: `$ python bb.py -f 1,2,3,4,5 -d 2` or `$ python bb.py --features 1,2,3,4,5 --desired 2`
 * -h or --help --> __Optional__ Used to display help information
+* -d or --defaults --> __Optional/Requried__ Required to specify the use of default values for unspecified arguments. Optional if all the required arguments are specified. 
 * -f or --features --> __Required__ Used to supply feature values, comma-separated without spaces (_Ex: -f 1,2,3,4,5_)
 * -d or --desired --> __Required__ Used to supply the desired number of features to select (_Ex: -d 2_)
-* Example usage: `$ python bb.py -f 1,2,3,4,5 -d 2` or `$ python bb.py --features 1,2,3,4,5 --desired 2`
 
 __Note:__
 * If you want to use a different criterion function, update __criterion_function__ in __bb.py__ file, with the required functionality
