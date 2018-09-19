@@ -24,10 +24,12 @@ class tree_node(object):
 
 flag = True
 J_max = -1
+result_node = None
 
 def branch_and_bound(root, D, d):
     global flag
     global J_max
+    global result_node
 
     # Compute the criterion function
     root.J = criterion_function(root.features)
@@ -36,13 +38,16 @@ def branch_and_bound(root, D, d):
     if (flag == False and root.J <= J_max):
         return
 
-    # If this is the leaf node, update J_max and return
+    # If this is the leaf node, update J_max, result_node and return
     if (root.level == D-d):
         if (flag == True):
             J_max = root.J
             flag = False
+            result_node = root
+
         elif (root.J > J_max):
             J_max = root.J
+            result_node = root
 
         return
 
@@ -158,7 +163,7 @@ def main(argv):
     if (d <= 0):
         sys.exit("Oops! Desired number of features value should be > 0")
     if (d > D):
-        sys.exit("Oops! Desired number of features value should be atmost the number of features supplied (%d)"%(D))
+        sys.exit("Oops! Desired number of features value should be atmost the number of features supplied ({})".format(D))
 
     # Create the root tree node
     root = tree_node(-1, features, [], 0)
@@ -170,10 +175,19 @@ def main(argv):
     give_indexes(root)
 
     # Display the constructed tree using python graphviz
+    print ("Plotting branch and bound tree...")
     dot = Digraph(comment="Branch and Bound Feature selection")
     dot.format = "png"
     display_tree(root, dot, -1)
     dot.render("bb_tree", view=True)
+    print ("Plotting finished...")
+
+    # Print the result
+    print ("------")
+    print ("Output")
+    print ("------")
+    print ("Features considered = {}".format(result_node.features))
+    print ("Criteriion function value = {}".format(result_node.J))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
