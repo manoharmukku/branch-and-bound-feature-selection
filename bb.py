@@ -121,7 +121,7 @@ def main(argv):
     D = None
     d = None
     defaults = False
-    count = 0
+    flag = 0
 
     # Parse the command line arguments
     for opt, arg in opts:
@@ -133,14 +133,14 @@ def main(argv):
             print ("Using default values for unspecified arguments")
         elif (opt in ["-f", "--features"]):
             features = arg
-            count += 1
+            flag |= 1 # Set 1st bit from last to 1
         elif (opt in ["-p", "--preserve"]):
             d = arg
-            count += 1
+            flag |= 2 # Set 2nd bit from last to 1
 
     # Sanity check of command line arguments
-    if (defaults == False and count < 2):
-        sys.exit("Oops! Please specify all the required arguments, or run the program with -d or --defaults flag. bb.py --help for help")
+    if (defaults == False and flag != 3): # If neither all the required features are specified, nor the default flag is set
+        sys.exit("Oops! Please specify all the required arguments, or run the program with -d or --defaults flag (-h for help)")
 
     if (defaults == True):
         if (features == None):
