@@ -5,7 +5,7 @@
 $ python bb.py [-h | --help] [-d | --defaults] -f | --features ... -d | --desired ...
 ```
 * -h or --help --> __Optional__ Used to display help information
-* -d or --defaults --> __Optional/Requried__ Required to specify the use of default values for unspecified arguments. Optional if all the required arguments are specified 
+* -d or --defaults --> __Optional__ Required to specify the use of default values for unspecified arguments 
 * -f or --features --> __Required__ Used to supply feature values, comma-separated without spaces (_Ex: -f 1,2,3,4,5_)
 * -d or --desired --> __Required__ Used to supply the desired number of features to select (_Ex: -d 2_)
 * Example usage: `$ python bb.py -f 1,2,3,4,5 -d 2`
