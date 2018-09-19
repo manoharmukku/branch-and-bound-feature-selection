@@ -90,12 +90,14 @@ def display_tree(node, dot_object, parent_index):
         display_tree(child, dot_object, node.index)
 
 def usage():
-    print ("-------------------------------")
-    print ("usage: bb.py [-h] -f ... -d ...")
-    print ("-------------------------------")
+    print ("------------------------------------------------------------------------------------")
+    print ("usage: bb.py [-h | --help] [-d | --defaults] -f | --features ... -p | --preserve ...")
+    print ("------------------------------------------------------------------------------------")
+    print ("Ex: $ python bb.py -f 1,2,3,4,5 -d 2")
     print ("-h or --help      --> optional, used to display help")
-    print ("-f or --features= --> required, used to supply feature values, separated by comma without space (Ex: -f 1,2,3,4,5)")
-    print ("-d or --desired=  --> required, used to supply the count of the final desired number of features (Ex: -d 2)")
+    print ("-d or --defaults  --> optional/required, used to specify the use of default values for unspeceified arguments. Optional when all the arguments are specified")
+    print ("-f or --features= --> required, used to specity feature values, comma-separated without spaces (Ex: -f 1,2,3,4,5)")
+    print ("-p or --preserve= --> required, used to specify the number of features to select (Ex: -p 2)")
     return
 
 def parse_features(features_string):
@@ -104,23 +106,59 @@ def parse_features(features_string):
 def main(argv):
     # Get the command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hf:d:", ["help", "features=", "desired="])
+        opts, args = getopt.getopt(argv, "hdf:p:", ["help", "defaults", "features=", "preserve="])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
 
-    features = [1, 2, 3, 4, 5]
-    D = 5
-    d = 2
+    # Defaults
+    features = None
+    D = None
+    d = None
+    defaults = False
+    count = 0
+
+    # Parse the command line arguments
     for opt, arg in opts:
         if (opt in ["-h", "--help"]):
             usage()
             sys.exit()
+        elif (opt in ["-d", "--defaults"]):
+            defaults = True
+            print ("using default values for unspecified arguments")
         elif (opt in ["-f", "--features"]):
-            features = parse_features(arg)
-            D = len(features)
-        elif (opt in ["-d", "--desired"]):
-            d = int(arg)
+            features = arg
+            count += 1
+        elif (opt in ["-p", "--preserve"]):
+            d = arg
+            count += 1
+
+    # Sanity check of command line arguments
+    if (defaults == False and count < 2):
+        sys.exit("Oops! Please specify all the required arguments, or run the program with -d or --defaults flag. bb.py --help for help")
+
+    if (defaults == True):
+        if (features == None):
+            features = "1,2,3,4,5"
+        if (d == None):
+            d = "2"
+
+    try:
+        features = parse_features(features)
+        D = len(features)
+    except ValueError:
+        sys.exit("Oops! The feature values should be numeric")
+
+    try:
+        int(d)
+    except ValueError:
+        sys.exit("Oops! Number of features to select, p, should be an integer value")
+    d = int(d)
+
+    if (d <= 0):
+        sys.exit("Oops! Desired number of features value should be > 0")
+    if (d > D):
+        sys.exit("Oops! Desired number of features value should be atmost the number of features supplied (%d)"%(D))
 
     # Create the root tree node
     root = tree_node(-1, features, [], 0)
