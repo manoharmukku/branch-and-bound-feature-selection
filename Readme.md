@@ -2,16 +2,17 @@
 
 ### Usage:
 ```
-$ python bb.py [-h] -f ... -d ...
+$ python bb.py [-h | --help] -f | --features ... -d | --desired ...
 ```
 * -h or --help --> __Optional__ Used to display help information
-* -f or --features= --> __Required__ Used to supply feature values, comma-separated without spaces (_Ex: -f 1,2,3,4,5_)
-* -d or --desired= --> __Required__ Used to supply the desired number of features to select (_Ex: -d 2_)
+* -f or --features --> __Required__ Used to supply feature values, comma-separated without spaces (_Ex: -f 1,2,3,4,5_)
+* -d or --desired --> __Required__ Used to supply the desired number of features to select (_Ex: -d 2_)
+* Example usage: `$ python bb.py -f 1,2,3,4,5 -d 2` or `$ python bb.py --features 1,2,3,4,5 --desired 2`
 
 __Note:__
-* If you want to use a different criterion function, change the code for __criterion_function__ in __bb.py__ file
-* This code is written in __Python3__
+* If you want to use a different criterion function, update __criterion_function__ in __bb.py__ file, with the required functionality
 * You may want to install __python-graphviz__ module (For Anaconda: ```$ conda install -c conda-forge python-graphviz```)
+* This code is written in __Python3__
 
 ###### References:
 * https://www.youtube.com/watch?v=hG7IVK_waNQ&t=4s
