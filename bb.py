@@ -8,9 +8,36 @@ import sys
 import random
 from graphviz import Digraph
 import queue
+import itertools
 
 def criterion_function(features):
     return sum(features)
+
+    '''
+    # Squared criterion function
+    result = 0
+    for feat in features:
+        result += feat**2
+    return result
+    '''
+    
+def isMonotonic(features):
+    features = sorted(features)
+
+    # Generate the powerset of the features
+    powerset = []
+    for i in range(1, len(features)+1):
+        subset = itertools.combinations(features, i)
+        powerset.extend(subset)
+
+    # For all possible subset pairs, check if monotonicity is satisfied
+    # print (powerset)
+    for i, item1 in enumerate(powerset):
+        for item2 in powerset[i+1:]:
+            if (set(item1).issubset(set(item2)) and (criterion_function(list(item1)) > criterion_function(list(item2)))):
+                return False
+
+    return True
 
 class tree_node(object):
     def __init__(self, value, features, preserved_features, level):
@@ -80,7 +107,7 @@ def give_indexes(root):
 
 def display_tree(node, dot_object, parent_index):
     # Create node in dob_object, for this node
-    dot_object.node(str(node.index), "Features = " + str(node.features) + "\nJ(Features) = " + str(node.J))
+    dot_object.node(str(node.index), "Features = " + str(node.features) + "\nJ(Features) = " + str(node.J) + "\nPreserved = " + str(node.preserved_features))
 
     # If this is not the root node, create an edge to its parent
     if (node.index != -1):
@@ -106,7 +133,7 @@ def usage():
     return
 
 def parse_features(features_string):
-    return sorted([int(str) for str in features_string.split(',')])
+    return sorted([float(str) for str in features_string.split(',')])
 
 def main(argv):
     # Get the command line arguments
@@ -164,6 +191,10 @@ def main(argv):
         sys.exit("Oops! Desired number of features value should be > 0")
     if (d > D):
         sys.exit("Oops! Desired number of features value should be atmost the number of features supplied ({})".format(D))
+
+    # Check monotonicity of J
+    if (isMonotonic(features) == False):
+        sys.exit("Oops! The feature values do not satisfy monotonic increasing")
 
     # Create the root tree node
     root = tree_node(-1, features, [], 0)
